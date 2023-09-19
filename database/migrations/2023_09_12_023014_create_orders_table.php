@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('custumer_id');
 
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('affiliate_id')->references('id')->on('affiliates');
             $table->foreign('custumer_id')->references('id')->on('customers');

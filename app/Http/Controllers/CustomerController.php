@@ -52,4 +52,78 @@ class CustomerController extends Controller
             return response()->json(['message' => 'Erro ao cadastrar o cliente', 'error' => $e->getMessage()], 500);
         }
     }
+
+    function update(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $customer = Customer::find($id);
+            if (!$customer) return response()->json(['message' => 'Cliente não encontrado.'], 404);
+
+            $validated = $request->validate([
+                'user' => 'required',
+                'address' => 'required',
+                'telephone' => 'required'
+            ]);
+
+            $customer->update([
+                'telephone'     => $validated['telephone']
+            ]);
+
+            $customer->address->update([
+                'street'        => $validated['address']['street'],
+                'neighborhood'  => $validated['address']['neighborhood'],
+                'number'        => $validated['address']['number'],
+                'city'          => $validated['address']['city'],
+                'reference'     => $validated['address']['reference'],
+            ]);
+
+            $customer->user->update([
+                'name'      => $validated['user']['name'],
+                'email'     => $validated['user']['email'],
+                'password'  => $validated['user']['password'],
+            ]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Cliente atualizado com sucesso'], 201);
+        } catch (\Exception $th) {
+            DB::rollBack();
+            return response()->json(['message' => 'Erro ao atualizar o cliente', 'error' => $th->getMessage()], 500);
+        }
+    }
+
+    public function index()
+    {
+        try {
+
+            $customer = Customer::with(['user', 'address'])->get();
+
+            return response()->json([$customer]);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Não foi possível listar os cliente', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $customer = Customer::find($id);
+            if (!$customer) return response()->json(['message' => 'Não foi possível encontrar esse cliente'], 404);
+
+            if (!$customer->address) $customer->address->delete();
+            if (!$customer->user) $customer->user->delete();
+
+            $customer->delete();
+
+            DB::commit();
+            return response()->json(['message' => 'Cliente deletado com sucesso'], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Não foi possível deletar esse cliente', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

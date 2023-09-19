@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('affiliate_id');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('affiliate_id')->references('id')->on('affiliates');
         });
     }
 
@@ -25,10 +28,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('employees', function (Blueprint $table) {
-            // Remova a chave estrangeira
-            $table->dropForeign(['user_id']);
-        });
+        // Schema::table('employees', function (Blueprint $table) {
+        //     // Remova a chave estrangeira
+        //     $table->dropForeign('user_id');
+        //     $table->dropForeign('affiliate_id');
+        // });
         Schema::dropIfExists('employees');
     }
 };

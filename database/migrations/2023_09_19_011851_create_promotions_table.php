@@ -11,21 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('item_ordereds', function (Blueprint $table) {
+        Schema::create('promotions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('affiliate_id');
-            $table->float("discountValue")->nullable();
-            $table->float("addValue")->nullable();
+            $table->string("description");
+            $table->float("value");
+            $table->boolean("actived");
             $table->float("amount");
-            $table->float("saleValue");
+            $table->unsignedBigInteger('affiliate_id');
+            $table->unsignedBigInteger('product_id');
+
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('order_id')->references('id')->on('orders');
-            $table->foreign('product_id')->references('id')->on('products');
             $table->foreign('affiliate_id')->references('id')->on('affiliates');
+            $table->foreign('product_id')->references('id')->on('products');
+
+            $table->unique(['affiliate_id', 'product_id']);
         });
     }
 
@@ -34,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('item_ordereds');
+        Schema::dropIfExists('promotions');
     }
 };

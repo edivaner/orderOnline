@@ -19,6 +19,7 @@ return new class extends Migration
             $table->float('cost')->nullable();
             $table->float('saleValue');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('affiliate_id')->references('id')->on('affiliates');
             $table->foreign('product_id')->references('id')->on('products');
