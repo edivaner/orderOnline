@@ -126,4 +126,17 @@ class CustomerController extends Controller
             return response()->json(['message' => 'Não foi possível deletar esse cliente', 'error' => $e->getMessage()], 500);
         }
     }
+    public function show($id)
+    {
+        try {
+
+            $customer = Customer::with(['user', 'address'])->find($id);
+            if (!$customer) return response()->json(['message' => 'Não foi possível encontrar esse cliente'], 404);
+
+            return response()->json([$customer]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Não foi possível encontrar esse cliente', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
