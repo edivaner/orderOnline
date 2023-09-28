@@ -2,6 +2,8 @@
 ### Passo a passo
 PROJETO ORDER ONLINE - FAZER PEDIDOS DE RESTAURANTES E LANCHONETES ONLINE. (sem fins comerciais)
 
+Projeto trabalhando com padrões de desing como Service Layer, repositorios e DTO's
+
 Suba os containers do projeto
 ```sh
 docker-compose up -d

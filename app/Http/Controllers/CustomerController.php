@@ -2,88 +2,104 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\customer\CreateCustomerDTO;
+use App\DTO\customer\UpdateCustomerDTO;
 use App\Models\Address;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
 use App\Models\User;
+use App\Services\CustomerService;
 
 class CustomerController extends Controller
 {
     //
 
+    public function __construct(
+        protected CustomerService $customerService
+    ) {
+    }
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'user' => 'required',
-            'address' => 'required',
-            'telephone' => 'required'
-        ]);
+        // $validated = $request->validate([
+        //     'user' => 'required',
+        //     'address' => 'required',
+        //     'telephone' => 'required'
+        // ]);
 
         try {
             DB::beginTransaction();
 
-            $user = User::create([
-                'name'      => $validated['user']['name'],
-                'email'     => $validated['user']['email'],
-                'password'  => $validated['user']['password'],
-            ]);
+            $customerCreated = $this->customerService->create(CreateCustomerDTO::makeFromRequest($request));
 
-            $address = Address::create([
-                'street'        => $validated['address']['street'],
-                'neighborhood'  => $validated['address']['neighborhood'],
-                'number'        => $validated['address']['number'],
-                'city'          => $validated['address']['city'],
-                'reference'     => $validated['address']['reference'],
-            ]);
+            // $user = User::create([
+            //     'name'      => $validated['user']['name'],
+            //     'email'     => $validated['user']['email'],
+            //     'password'  => $validated['user']['password'],
+            // ]);
 
-            $customer = Customer::create([
-                'user_id'       => $user->id,
-                'address_id'    => $address->id,
-                'telephone'     => $validated['telephone']
-            ]);
+            // $address = Address::create([
+            //     'street'        => $validated['address']['street'],
+            //     'neighborhood'  => $validated['address']['neighborhood'],
+            //     'number'        => $validated['address']['number'],
+            //     'city'          => $validated['address']['city'],
+            //     'reference'     => $validated['address']['reference'],
+            // ]);
+
+            // $customer = Customer::create([
+            //     'user_id'       => $user->id,
+            //     'address_id'    => $address->id,
+            //     'telephone'     => $validated['telephone']
+            // ]);
 
             DB::commit();
 
-            return response()->json(['message' => 'Cliente cadastrado com sucesso', 'customer' => $customer, 'address' => $address, 'user' => $user], 201);
+            return response()->json(['message' => 'Cliente cadastrado com sucesso', 'customer' => $customerCreated], 201);
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Erro ao cadastrar o cliente', 'error' => $e->getMessage()], 500);
         }
     }
 
-    function update(Request $request, $id)
+    function update(Request $request, string $id)
     {
         try {
             DB::beginTransaction();
 
-            $customer = Customer::find($id);
+            $customer = $this->customerService->update(UpdateCustomerDTO::makeFromRequest($request));
+
             if (!$customer) return response()->json(['message' => 'Cliente não encontrado.'], 404);
 
-            $validated = $request->validate([
-                'user' => 'required',
-                'address' => 'required',
-                'telephone' => 'required'
-            ]);
 
-            $customer->update([
-                'telephone'     => $validated['telephone']
-            ]);
+            // $validated = $request->validate([
+            //     'user' => 'required',
+            //     'address' => 'required',
+            //     'telephone' => 'required'
+            // ]);
 
-            $customer->address->update([
-                'street'        => $validated['address']['street'],
-                'neighborhood'  => $validated['address']['neighborhood'],
-                'number'        => $validated['address']['number'],
-                'city'          => $validated['address']['city'],
-                'reference'     => $validated['address']['reference'],
-            ]);
 
-            $customer->user->update([
-                'name'      => $validated['user']['name'],
-                'email'     => $validated['user']['email'],
-                'password'  => $validated['user']['password'],
-            ]);
+            // $this->customerService->update(
+            //     $id,
+            //     $validated['address'],
+            //     $validated['user'],
+            //     $validated['telephone']
+            // );
+
+            // $customer->address->update([
+            //     'street'        => $validated['address']['street'],
+            //     'neighborhood'  => $validated['address']['neighborhood'],
+            //     'number'        => $validated['address']['number'],
+            //     'city'          => $validated['address']['city'],
+            //     'reference'     => $validated['address']['reference'],
+            // ]);
+
+            // $customer->user->update([
+            //     'name'      => $validated['user']['name'],
+            //     'email'     => $validated['user']['email'],
+            //     'password'  => $validated['user']['password'],
+            // ]);
 
             DB::commit();
 
@@ -97,8 +113,7 @@ class CustomerController extends Controller
     public function index()
     {
         try {
-
-            $customer = Customer::with(['user', 'address'])->get();
+            $customer = $this->customerService->getAll();
 
             return response()->json([$customer]);
         } catch (Exception $e) {
@@ -106,18 +121,19 @@ class CustomerController extends Controller
         }
     }
 
-    public function delete($id)
+    public function delete(string $id)
     {
         try {
             DB::beginTransaction();
 
-            $customer = Customer::find($id);
-            if (!$customer) return response()->json(['message' => 'Não foi possível encontrar esse cliente'], 404);
+            // $customer = $this->customerService->findOne($id);
 
-            if (!$customer->address) $customer->address->delete();
-            if (!$customer->user) $customer->user->delete();
+            // if (!$customer) return response()->json(['message' => 'Não foi possível encontrar esse cliente'], 404);
 
-            $customer->delete();
+            // if (!$customer->address) $customer->address->delete();
+            // if (!$customer->user) $customer->user->delete();
+
+            $this->customerService->delete($id);
 
             DB::commit();
             return response()->json(['message' => 'Cliente deletado com sucesso'], 200);
@@ -126,11 +142,10 @@ class CustomerController extends Controller
             return response()->json(['message' => 'Não foi possível deletar esse cliente', 'error' => $e->getMessage()], 500);
         }
     }
-    public function show($id)
+    public function show(string $id)
     {
         try {
-
-            $customer = Customer::with(['user', 'address'])->find($id);
+            $customer = $this->customerService->findOne($id);
             if (!$customer) return response()->json(['message' => 'Não foi possível encontrar esse cliente'], 404);
 
             return response()->json([$customer]);
