@@ -6,18 +6,22 @@ namespace App\DTO\customer;
 class CreateCustomerDTO
 {
     public function __construct(
-        public string $telephone,
         public array $user,
-        public array $adress,
+        public array $address,
+        public string $telephone,
     ) {
     }
 
-    public static function makeFromRequest($request)
+    public static function makeFromRequest($request): self
     {
-        return new self(
+        // dd($request);
+
+        $self = new self(
             $request->user,
             $request->address,
             $request->telephone
         );
+
+        return $self;
     }
 }

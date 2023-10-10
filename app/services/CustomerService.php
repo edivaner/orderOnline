@@ -11,9 +11,8 @@ class CustomerService
 {
 
     public function __construct(
-        protected CustomerRepositoryInterface $repositoryCustomer;
-    )
-    {
+        protected CustomerRepositoryInterface $repositoryCustomer
+    ) {
     }
 
     public function getAll(string $filter = null): array
@@ -26,14 +25,17 @@ class CustomerService
         return $this->repositoryCustomer->findOne($id);
     }
 
-    public function delete(string $id): bool
+    public function delete(string $id): void
     {
-        return $this->repositoryCustomer->delete($id);
+        $this->repositoryCustomer->delete($id);
     }
 
-    public function create(CreateCustomerDTO $dto): stdClass
+    public function create(CreateCustomerDTO $dto): stdClass|null
     {
-        return $this->repositoryCustomer->create($dto);
+        $customer = $this->repositoryCustomer->create($dto);
+        if (!$customer) return null;
+
+        return $this->findOne((string)$customer->id);
     }
 
     public function update(UpdateCustomerDTO $dto): stdClass

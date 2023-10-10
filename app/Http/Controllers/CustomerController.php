@@ -23,36 +23,12 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        // $validated = $request->validate([
-        //     'user' => 'required',
-        //     'address' => 'required',
-        //     'telephone' => 'required'
-        // ]);
-
         try {
             DB::beginTransaction();
 
+            $request = (object) $request->toArray();
+
             $customerCreated = $this->customerService->create(CreateCustomerDTO::makeFromRequest($request));
-
-            // $user = User::create([
-            //     'name'      => $validated['user']['name'],
-            //     'email'     => $validated['user']['email'],
-            //     'password'  => $validated['user']['password'],
-            // ]);
-
-            // $address = Address::create([
-            //     'street'        => $validated['address']['street'],
-            //     'neighborhood'  => $validated['address']['neighborhood'],
-            //     'number'        => $validated['address']['number'],
-            //     'city'          => $validated['address']['city'],
-            //     'reference'     => $validated['address']['reference'],
-            // ]);
-
-            // $customer = Customer::create([
-            //     'user_id'       => $user->id,
-            //     'address_id'    => $address->id,
-            //     'telephone'     => $validated['telephone']
-            // ]);
 
             DB::commit();
 

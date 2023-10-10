@@ -9,11 +9,11 @@ use App\DTO\customer\{
 
 use stdClass;
 
-class CustomerRepositoryInterface
+interface CustomerRepositoryInterface
 {
     public function getAll(string $filter = null): array;
     public function findOne(string $id): stdClass;
-    public function delete(string $id): bool;
+    public function delete(string $id): void;
     public function create(CreateCustomerDTO $dto): stdClass;
     public function update(UpdateCustomerDTO $dto): stdClass;
 }
