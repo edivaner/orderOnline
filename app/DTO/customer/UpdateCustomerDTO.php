@@ -8,17 +8,17 @@ class UpdateCustomerDTO
 {
     public function __construct(
         public string $id,
-        public string $telephone,
         public array $user,
-        public array $adress,
+        public array $address,
+        public string $telephone,
     ) {
     }
 
-    public static function makeFromRequest($request)
+    public static function makeFromRequest($request, string $id = null)
     {
         return new self(
-            $$request->id,
-            $$request->user,
+            $id ?? $request->id,
+            $request->user,
             $request->address,
             $request->telephone
         );

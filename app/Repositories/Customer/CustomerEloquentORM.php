@@ -41,7 +41,13 @@ class CustomerEloquentORM implements CustomerRepositoryInterface
 
     public function delete(string $id): void
     {
-        $this->customer->findOrFail($id)->delete;
+        $customer   = $this->customer->findOrFail($id)->toArray();
+
+        if ($customer) {
+            $this->user->findOrFail($customer['user_id'])->delete();
+            $this->address->findOrFail($customer['address_id'])->delete();
+            $this->customer->findOrFail($id)->delete();
+        }
     }
 
     public function create(CreateCustomerDTO $dto): stdClass
@@ -64,9 +70,17 @@ class CustomerEloquentORM implements CustomerRepositoryInterface
             return null;
         }
 
-        $customer->update(
-            (array) $dto
+        $user = $this->user->find($customer->user_id);
+        $user->update(
+            (array) $dto->user
         );
+
+        $address = $this->address->find($customer->address_id);
+        $address->update(
+            (array) $dto->address
+        );
+
+        $customer->update(['telephone' => $dto->telephone]);
 
         return (object) $customer->toArray();
     }

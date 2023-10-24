@@ -44,38 +44,10 @@ class CustomerController extends Controller
         try {
             DB::beginTransaction();
 
-            $customer = $this->customerService->update(UpdateCustomerDTO::makeFromRequest($request));
-
+            $customer = $this->customerService->findOne($id);
             if (!$customer) return response()->json(['message' => 'Cliente não encontrado.'], 404);
 
-
-            // $validated = $request->validate([
-            //     'user' => 'required',
-            //     'address' => 'required',
-            //     'telephone' => 'required'
-            // ]);
-
-
-            // $this->customerService->update(
-            //     $id,
-            //     $validated['address'],
-            //     $validated['user'],
-            //     $validated['telephone']
-            // );
-
-            // $customer->address->update([
-            //     'street'        => $validated['address']['street'],
-            //     'neighborhood'  => $validated['address']['neighborhood'],
-            //     'number'        => $validated['address']['number'],
-            //     'city'          => $validated['address']['city'],
-            //     'reference'     => $validated['address']['reference'],
-            // ]);
-
-            // $customer->user->update([
-            //     'name'      => $validated['user']['name'],
-            //     'email'     => $validated['user']['email'],
-            //     'password'  => $validated['user']['password'],
-            // ]);
+            $customer = $this->customerService->update(UpdateCustomerDTO::makeFromRequest($request, $id));
 
             DB::commit();
 
@@ -102,12 +74,8 @@ class CustomerController extends Controller
         try {
             DB::beginTransaction();
 
-            // $customer = $this->customerService->findOne($id);
-
-            // if (!$customer) return response()->json(['message' => 'Não foi possível encontrar esse cliente'], 404);
-
-            // if (!$customer->address) $customer->address->delete();
-            // if (!$customer->user) $customer->user->delete();
+            $customer = $this->customerService->findOne($id);
+            if (!$customer) return response()->json(['error' => 'Não foi encontrado este cliente para ser excluido.'], 404);
 
             $this->customerService->delete($id);
 
