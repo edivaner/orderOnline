@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Repositories\Employee\EmployeeRepositoryInterface;
 use stdClass;
 
+use function Laravel\Prompts\error;
+
 class EmployeeEloquentORM implements EmployeeRepositoryInterface
 {
     public function __construct(
@@ -16,20 +18,14 @@ class EmployeeEloquentORM implements EmployeeRepositoryInterface
         protected User $user
     ) {
     }
-
-    // public function getAll(string $filter = null): array
-    // {
-    // }
-    public function findOne(string $id): stdClass
+    public function findOne(string $id): stdClass|null
     {
         $employee = $this->employee->with(['user'])->find($id);
         if (!$employee) return null;
 
         return (object) $employee->toArray();
     }
-    // public function delete(string $id): void
-    // {
-    // }
+
     public function create(CreateEmployeeDTO $dto): stdClass
     {
         $user = $this->user->create($dto->user);
@@ -53,5 +49,20 @@ class EmployeeEloquentORM implements EmployeeRepositoryInterface
         ]);
 
         return (object) $this->findOne((string)$dto->id);
+    }
+
+    public function getAll(): array
+    {
+        return $this->employee->with(['user', 'affiliate'])->get()->toArray();
+    }
+
+    public function delete(string $id): void
+    {
+        $employee = $this->employee->findOrFail($id);
+
+        if ($employee) {
+            $this->user->findOrFail($employee['user_id'])->delete();
+            $this->employee->findOrFail($id)->delete();
+        }
     }
 }

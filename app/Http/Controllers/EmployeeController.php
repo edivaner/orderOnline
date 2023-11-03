@@ -51,4 +51,41 @@ class EmployeeController extends Controller
             return response()->json(['message' => 'Erro ao atualizar o funcionário', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function index()
+    {
+        try {
+            $employee = $this->employeeService->getAll();
+            return response()->json(['employeers' => $employee]);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Erro ao exibir todos os funcionários']);
+        }
+    }
+
+    public function show(string $id)
+    {
+        try {
+            $employee = $this->employeeService->getOne($id);
+
+            if (!$employee) return response()->json(['message' => 'Não foi possível encontrar esse funcionário.']);
+
+            return response()->json(['employeer' => $employee]);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Erro ao exibir esse funcionário']);
+        }
+    }
+
+    public function delete(string $id)
+    {
+        try {
+            $employee = $this->employeeService->findOne($id);
+            if (!$employee) return response()->json(['message' => 'Não foi possível encontrar esse funcionário para deleta-lo.']);
+
+            $this->employeeService->delete($id);
+
+            return response()->json(['message' => 'Funcionário deletado com sucesso']);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Erro ao deletar esse funcionário.']);
+        }
+    }
 }

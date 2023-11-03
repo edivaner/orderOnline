@@ -33,4 +33,19 @@ class EmployeeService
     {
         return $this->repositoryEmployee->update($dto);
     }
+
+    public function getAll()
+    {
+        return $this->repositoryEmployee->getAll();
+    }
+
+    public function getOne(String $id)
+    {
+        return $this->repositoryEmployee->findOne($id);
+    }
+
+    public function delete(string $id)
+    {
+        return $this->repositoryEmployee->delete($id);
+    }
 }
