@@ -23,4 +23,9 @@ class Affiliate extends Model
     protected $casts = [
         "head_office" => "boolean"
     ];
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
 }
