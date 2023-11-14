@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTO\affiliate\CreateAffiliateDTO;
+use App\DTO\affiliate\UpdateAffiliateDTO;
 use App\Repositories\Affiliate\AffiliateRepositoryInterface;
 use stdClass;
 
@@ -20,5 +21,15 @@ class AffiliateService
 
         if ($affliate)
             return $this->affiliateRepository->findOne((string)$affliate->id);
+    }
+
+    public function update(UpdateAffiliateDTO $dto): stdClass
+    {
+        return $this->affiliateRepository->update($dto);
+    }
+
+    public function findOne(string $id): stdClass
+    {
+        return $this->affiliateRepository->findOne($id);
     }
 }

@@ -33,6 +33,7 @@ Route::delete("/employee/{id}", [EmployeeController::class, 'delete']);
 
 //Filial (Affiliate)
 Route::post("/affiliate", [AffiliateController::class, 'store']);
+Route::put("/affiliate/{id}", [AffiliateController::class, 'update']);
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();

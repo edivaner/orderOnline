@@ -3,6 +3,7 @@
 namespace App\Repositories\Affiliate;
 
 use App\DTO\affiliate\CreateAffiliateDTO;
+use App\DTO\affiliate\UpdateAffiliateDTO;
 use App\Models\Address;
 use App\Models\Affiliate;
 use App\Repositories\Affiliate\AffiliateRepositoryInterface;
@@ -22,7 +23,7 @@ class AffiliateEloquenteORM implements AffiliateRepositoryInterface
 
     public function findOne(string $id): stdClass
     {
-        $affiliate = $this->affiliate->with(['address'])->find($id);
+        $affiliate = $this->affiliate->with(['address'])->findOrFail($id);
         return (object) $affiliate->toArray();
     }
 
@@ -43,7 +44,27 @@ class AffiliateEloquenteORM implements AffiliateRepositoryInterface
         return (object) $affiliate->toArray();
     }
 
-    // public function update($dto): stdClass
-    // {
-    // }
+    public function update(UpdateAffiliateDTO $dto): stdClass
+    {
+        $affiliate = $this->affiliate->find($dto->id);
+
+        $address = ($affiliate->address_id) ? $this->address->find($affiliate->address_id) : null;
+        if (!$address) {
+            $address = $this->address->create($dto->address);
+        } else {
+            $address->update($dto->address);
+        }
+
+        // print_r($this->address);
+        // die();
+
+        $affiliate->update([
+            'name' => $dto->name,
+            'telephone' => $dto->telephone,
+            'head_office' => $dto->head_office,
+            'address_id' => $address->id
+        ]);
+
+        return (object) $affiliate->toArray();
+    }
 }
